@@ -9,6 +9,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "DrawDebugHelpers.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -81,6 +82,9 @@ void APhysicsTestCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APhysicsTestCharacter::Look);
 
+		//Ability
+		EnhancedInputComponent->BindAction(AbilityAction, ETriggerEvent::Triggered, this, &APhysicsTestCharacter::TelekinesisCircle);
+
 	}
 
 }
@@ -119,6 +123,38 @@ void APhysicsTestCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void APhysicsTestCharacter::TelekinesisCircle()
+{
+	FVector start = FollowCamera->GetSocketLocation(USpringArmComponent::SocketName);
+	FVector forward = FollowCamera->GetForwardVector();
+
+	// offset start position to avoid colliding with self
+	start = FVector(start.X + (forward.X * 500.f), start.Y + (forward.Y * 500.f), start.Z + (forward.Z * 500.f));
+
+	FVector end = start + (forward * 10000.f);
+	FHitResult hit;
+
+	if (!GetWorld())
+		return;
+	// raycast and debugdraw line
+	bool actorHit = GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_Pawn, FCollisionQueryParams(), FCollisionResponseParams());
+	DrawDebugLine(GetWorld(), start, end, FColor::Green, false, 0.f, 0.f, 5.f);
+
+	//auto field = GetWorld()->PhysicsField.GetClass()->CreateAbstractDefaultSubobject<UField>(TEXT("PhysicsField"), true);
+	
+	if (!actorHit && !hit.GetActor())
+		return;
+
+	FCollisionShape sphere = FCollisionShape::MakeSphere(CircleRadius);
+	TArray<FHitResult> hits;
+
+	GetWorld()->SweepMultiByChannel(hits, );
+	DrawDebugCircle(GetWorld(), hit.Location, 500.f, 40.f, FColor::Red, false, 0.f, 0, 3.f, FVector(1.f, 0.f, 0.f), FVector(0.f, 1.f, 0.f));
+
+	// add onscreen debug message of actor hit
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, hit.GetActor()->GetFName().ToString());
 }
 
 
