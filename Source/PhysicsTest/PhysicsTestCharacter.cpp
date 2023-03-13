@@ -147,10 +147,10 @@ void APhysicsTestCharacter::TelekinesisCircle()
 	if (!actorHit && !hit.GetActor())
 		return;
 
-	FCollisionShape sphere = FCollisionShape::MakeSphere(CircleRadius);
-	TArray<FHitResult> hits;
+	/*FCollisionShape sphere = FCollisionShape::MakeSphere(CircleRadius);
+	TArray<FHitResult> hits;*/
 
-	GetWorld()->SweepMultiByChannel(hits, );
+	/*GetWorld()->SweepMultiByChannel(hits, );*/
 	DrawDebugCircle(GetWorld(), hit.Location, 500.f, 40.f, FColor::Red, false, 0.f, 0, 3.f, FVector(1.f, 0.f, 0.f), FVector(0.f, 1.f, 0.f));
 
 	// add onscreen debug message of actor hit
