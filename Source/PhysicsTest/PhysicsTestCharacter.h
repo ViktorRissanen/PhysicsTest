@@ -42,7 +42,7 @@ class APhysicsTestCharacter : public ACharacter
 	class UInputAction* AbilityAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Ability, meta = (AllowPrivateAccess = "true"))
-		float CircleRadius = 5.f;
+		float CircleRadius = 500.f;
 
 public:
 	APhysicsTestCharacter();

@@ -130,31 +130,39 @@ void APhysicsTestCharacter::TelekinesisCircle()
 	FVector start = FollowCamera->GetSocketLocation(USpringArmComponent::SocketName);
 	FVector forward = FollowCamera->GetForwardVector();
 
-	// offset start position to avoid colliding with self
-	start = FVector(start.X + (forward.X * 500.f), start.Y + (forward.Y * 500.f), start.Z + (forward.Z * 500.f));
-
 	FVector end = start + (forward * 10000.f);
 	FHitResult hit;
 
+	// ignore collision with player
+	FCollisionQueryParams param;
+	param.AddIgnoredActor(GetUniqueID());
+
 	if (!GetWorld())
 		return;
-	// raycast and debugdraw line
-	bool actorHit = GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_Pawn, FCollisionQueryParams(), FCollisionResponseParams());
-	DrawDebugLine(GetWorld(), start, end, FColor::Green, false, 0.f, 0.f, 5.f);
 
-	//auto field = GetWorld()->PhysicsField.GetClass()->CreateAbstractDefaultSubobject<UField>(TEXT("PhysicsField"), true);
+	// raycast and debugdraw line
+	bool actorHit = GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_Pawn, param, FCollisionResponseParams());
+	/*DrawDebugLine(GetWorld(), start, end, FColor::Green, false, 0.f, 0.f, 5.f);*/
 	
 	if (!actorHit && !hit.GetActor())
 		return;
 
-	/*FCollisionShape sphere = FCollisionShape::MakeSphere(CircleRadius);
-	TArray<FHitResult> hits;*/
-
-	/*GetWorld()->SweepMultiByChannel(hits, );*/
-	DrawDebugCircle(GetWorld(), hit.Location, 500.f, 40.f, FColor::Red, false, 0.f, 0, 3.f, FVector(1.f, 0.f, 0.f), FVector(0.f, 1.f, 0.f));
-
 	// add onscreen debug message of actor hit
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, hit.GetActor()->GetFName().ToString());
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, hit.GetActor()->GetFName().ToString());
+
+	FCollisionShape sphere = FCollisionShape::MakeSphere(CircleRadius);
+	TArray<FHitResult> hits;
+	FVector sphereEnd = hit.Location + (hit.Location.Z * 10.f);
+	FCollisionObjectQueryParams collisionParam;
+	
+
+	GetWorld()->SweepMultiByObjectType(hits, hit.Location, sphereEnd, FQuat(), ECC_PhysicsBody, sphere, param);
+	DrawDebugSphere(GetWorld(), hit.Location, CircleRadius, 40.f, FColor::Red, false, 0.f, 0, 3.f);
+
+	for (auto& sphereHit : hits)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, sphereHit.GetActor()->GetName());
+	}
 }
 
 
